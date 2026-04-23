@@ -1,0 +1,17 @@
+## Interface: 120005
+## Title: WeirdUI
+## Notes: Theme-first UI overhaul for World of Warcraft: Midnight retail.
+## Author: Weirdman
+## Version: 0.1.0
+## SavedVariables: WeirdUIDB
+
+Core/Bootstrap.lua
+Core/Util.lua
+Core/Database.lua
+Themes/Schema.lua
+Themes/Defaults.lua
+Themes/ThemeManager.lua
+Core/SkinRegistry.lua
+Core/SkinHelpers.lua
+Debug/PreviewFrame.lua
+Debug/Commands.lua

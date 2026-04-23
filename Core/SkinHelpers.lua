@@ -35,10 +35,79 @@ local function GetFontFallback()
     return fontFile, fontSize, fontFlags
 end
 
-function Helpers:ApplyPanel(frame)
+local function GetIconFont()
+    return ns.IconFont and ns.IconFont.Path
+end
+
+local function HideButtonArt(button)
+    local namedRegions = {
+        button.Left,
+        button.Middle,
+        button.Right,
+        button.LeftDisabled,
+        button.MiddleDisabled,
+        button.RightDisabled,
+    }
+
+    for _, region in ipairs(namedRegions) do
+        if region then
+            region:SetAlpha(0)
+        end
+    end
+
+    local textures = {
+        button.GetNormalTexture and button:GetNormalTexture() or nil,
+        button.GetPushedTexture and button:GetPushedTexture() or nil,
+        button.GetHighlightTexture and button:GetHighlightTexture() or nil,
+        button.GetDisabledTexture and button:GetDisabledTexture() or nil,
+    }
+
+    for _, texture in ipairs(textures) do
+        if texture then
+            texture:SetAlpha(0)
+        end
+    end
+end
+
+local function HideCheckButtonArt(button)
+    if not button then
+        return
+    end
+
+    if button.SetNormalTexture then
+        button:SetNormalTexture(0)
+    end
+
+    if button.SetPushedTexture then
+        button:SetPushedTexture(0)
+    end
+
+    if button.SetHighlightTexture then
+        button:SetHighlightTexture(0)
+    end
+
+    if button.SetDisabledTexture then
+        button:SetDisabledTexture(0)
+    end
+
+    local checked = button.GetCheckedTexture and button:GetCheckedTexture() or nil
+    local disabledChecked = button.GetDisabledCheckedTexture and button:GetDisabledCheckedTexture() or nil
+
+    if checked then
+        checked:SetAlpha(0)
+    end
+
+    if disabledChecked then
+        disabledChecked:SetAlpha(0)
+    end
+end
+
+function Helpers:ApplyPanel(frame, options)
+    options = options or {}
+
     local theme = Addon.Theme
-    local panelColor = theme:GetToken("color.surface.panel")
-    local borderColor = theme:GetToken("color.border.strong")
+    local panelColor = theme:GetToken(options.surfaceColorPath or "color.surface.panel")
+    local borderColor = theme:GetToken(options.borderColorPath or "color.border.strong")
     local accentColor = theme:GetToken("color.role.accent.primary")
     local shadowColor = theme:GetToken("color.surface.overlay")
 
@@ -51,6 +120,7 @@ function Helpers:ApplyPanel(frame)
     shadow:SetPoint("TOPLEFT", -4, 4)
     shadow:SetPoint("BOTTOMRIGHT", 4, -4)
     ApplyColor(shadow, shadowColor)
+    shadow:SetShown(options.shadow ~= false)
 
     local top = EnsureLine(frame, "WeirdUIBorderTop")
     top:SetPoint("TOPLEFT")
@@ -80,6 +150,7 @@ function Helpers:ApplyPanel(frame)
     accent:SetPoint("TOPLEFT", 12, -12)
     accent:SetSize(72, 2)
     ApplyColor(accent, accentColor)
+    accent:SetShown(options.accent ~= false)
 end
 
 function Helpers:ApplyText(fontString, options)
@@ -90,7 +161,7 @@ function Helpers:ApplyText(fontString, options)
     local colorPath = options.colorPath or "color.text.primary"
     local flagsName = options.flags or "body"
 
-    local fontFile = Addon.Theme:GetFont(fontName)
+    local fontFile = options.fontFile or Addon.Theme:GetFont(fontName)
     local fontSize = Addon.Theme:GetToken(string.format("typography.size.%s", sizeName))
     local fontFlags = Addon.Theme:GetToken(string.format("typography.flag.%s", flagsName))
     local fallbackFile, fallbackSize, fallbackFlags = GetFontFallback()
@@ -103,6 +174,7 @@ function Helpers:ApplyText(fontString, options)
 end
 
 function Helpers:ApplyButton(button)
+    HideButtonArt(button)
     self:ApplyPanel(button)
 
     local text = button.GetFontString and button:GetFontString()
@@ -157,6 +229,89 @@ function Helpers:ApplyButton(button)
 
         button.WeirdUIButtonScripts = true
     end
+end
+
+function Helpers:ApplyTextButton(button, options)
+    options = options or {}
+
+    local hovered = button.hovered
+    local active = button.active
+    local textColorPath = active and (options.activeColorPath or "color.text.primary") or (hovered and (options.hoverColorPath or "color.role.accent.strong") or (options.colorPath or "color.text.secondary"))
+    local flags = (hovered or active) and (options.activeFlags or "emphasis") or (options.flags or "body")
+    local underlineColor = (hovered or active) and Addon.Theme:GetColor("accent", "primary") or Addon.Theme:GetToken(options.underlineColorPath or "color.border.subtle")
+
+    self:ApplyText(button.Label, {
+        fontFile = options.fontFile,
+        font = options.font,
+        size = options.size or "sm",
+        flags = flags,
+        colorPath = textColorPath,
+    })
+
+    if button.Underline then
+        button.Underline:SetVertexColor(underlineColor.r, underlineColor.g, underlineColor.b, underlineColor.a or 1)
+        button.Underline:SetAlpha((hovered or active) and (options.activeAlpha or 0.95) or (options.idleAlpha or 0.2))
+    end
+end
+
+function Helpers:ApplyCheckbox(button)
+    if not button then
+        return
+    end
+
+    HideCheckButtonArt(button)
+
+    if not button.WeirdUICheckboxBox then
+        button.WeirdUICheckboxBox = CreateFrame("Frame", nil, button)
+        button.WeirdUICheckboxBox:SetPoint("TOPLEFT", 4, -4)
+        button.WeirdUICheckboxBox:SetPoint("BOTTOMRIGHT", -4, 4)
+
+        button.WeirdUICheckboxGlyph = button.WeirdUICheckboxBox:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+        button.WeirdUICheckboxGlyph:SetPoint("CENTER", 0, 0)
+        button.WeirdUICheckboxGlyph:SetText(ns.IconFont.Glyph.Check)
+
+        button:HookScript("OnEnter", function(control)
+            control.hovered = true
+            Addon.SkinHelpers:ApplyCheckbox(control)
+        end)
+
+        button:HookScript("OnLeave", function(control)
+            control.hovered = nil
+            Addon.SkinHelpers:ApplyCheckbox(control)
+        end)
+
+        button:HookScript("OnDisable", function(control)
+            Addon.SkinHelpers:ApplyCheckbox(control)
+        end)
+
+        button:HookScript("OnEnable", function(control)
+            Addon.SkinHelpers:ApplyCheckbox(control)
+        end)
+    end
+
+    self:ApplyPanel(button.WeirdUICheckboxBox, {
+        accent = false,
+        shadow = false,
+        surfaceColorPath = button.hovered and "color.surface.elevated" or "color.surface.inset",
+        borderColorPath = button:GetChecked() and "color.border.accent" or "color.border.subtle",
+    })
+
+    local checkColor = Addon.Theme:GetColor("accent", "primary")
+    local alpha = button:GetChecked() and 1 or 0
+    if not button:IsEnabled() then
+        alpha = alpha * 0.45
+        button:SetAlpha(0.65)
+    else
+        button:SetAlpha(1)
+    end
+
+    self:ApplyText(button.WeirdUICheckboxGlyph, {
+        fontFile = GetIconFont(),
+        size = "md",
+        flags = "body",
+        colorPath = "color.role.accent.primary",
+    })
+    button.WeirdUICheckboxGlyph:SetAlpha(alpha)
 end
 
 function Helpers:ApplyStatusBar(statusBar)

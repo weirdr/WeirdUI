@@ -11,7 +11,10 @@ Core/Database.lua
 Themes/Schema.lua
 Themes/Defaults.lua
 Themes/ThemeManager.lua
+Core/IconFont.lua
 Core/SkinRegistry.lua
 Core/SkinHelpers.lua
+Menu/Widgets.lua
+Menu/Shell.lua
 Debug/PreviewFrame.lua
 Debug/Commands.lua

@@ -9,12 +9,20 @@ local DefaultProfile = {
         activeTheme = Constants.DefaultThemeID,
         overrides = {},
     },
+    ui = {
+        showLoadMessage = true,
+    },
 }
 
 ns.DatabaseDefaults = {
     version = Constants.DatabaseVersion,
     global = {
         themes = {},
+        ui = {
+            menu = {
+                lastPage = "overview",
+            },
+        },
     },
     profiles = {
         [Constants.DefaultProfileName] = DefaultProfile,
@@ -63,4 +71,8 @@ function Addon:GetUserTheme(themeID)
     end
 
     return self.db.global.themes[themeID]
+end
+
+function Addon:GetGlobalUIState()
+    return self.db and self.db.global and self.db.global.ui
 end

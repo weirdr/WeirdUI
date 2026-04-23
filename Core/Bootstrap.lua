@@ -37,11 +37,23 @@ function Addon:Initialize()
         self:InitializeSkinRegistry()
     end
 
+    if self.InitializeMenu then
+        self:InitializeMenu()
+    end
+
     if self.InitializeDebugTools then
         self:InitializeDebugTools()
     end
 
-    self:Debug(string.format("Loaded v%s with profile '%s' and theme '%s'.", ns.Version, self:GetCurrentProfileName(), self.Theme:GetActiveThemeID()))
+    if self:GetCurrentProfile().ui.showLoadMessage then
+        self:Debug(string.format("Loaded v%s with profile '%s' and theme '%s'.", ns.Version, self:GetCurrentProfileName(), self.Theme:GetActiveThemeID()))
+    end
+
+    C_Timer.After(0, function()
+        if Addon.ToggleMenu and (not Addon.Menu or not Addon.Menu.frame or not Addon.Menu.frame:IsShown()) then
+            Addon:ToggleMenu()
+        end
+    end)
 end
 
 Addon:RegisterEvent("PLAYER_LOGIN")

@@ -3,7 +3,7 @@ local _, ns = ...
 local Addon = ns.Addon
 
 local function PrintHelp()
-    Addon:Debug("Commands: /weirdui preview, /weirdui reapply, /weirdui token <path>")
+    Addon:Debug("Commands: /weirdui, /weirdui menu, /weirdui preview, /weirdui reapply, /weirdui token <path>, /rl")
 end
 
 local function Trim(text)
@@ -37,7 +37,12 @@ SlashCmdList.WEIRDUI = function(message)
     local command, rest = string.match(message or "", "^(%S*)%s*(.-)$")
     command = string.lower(command or "")
 
-    if command == "" or command == "help" then
+    if command == "" or command == "menu" then
+        Addon:ToggleMenu()
+        return
+    end
+
+    if command == "help" then
         PrintHelp()
         return
     end
@@ -50,6 +55,7 @@ SlashCmdList.WEIRDUI = function(message)
     if command == "reapply" then
         local appliedCount = Addon:ReapplyAllSkins()
         Addon:ReapplyPreview()
+        Addon:ReapplyMenu()
         Addon:Debug(string.format("Reapplied %d registered skin target(s).", appliedCount))
         return
     end
@@ -60,6 +66,11 @@ SlashCmdList.WEIRDUI = function(message)
     end
 
     PrintHelp()
+end
+
+SLASH_WEIRDUIRELOAD1 = "/rl"
+SlashCmdList.WEIRDUIRELOAD = function()
+    ReloadUI()
 end
 
 function Addon:InitializeDebugTools()

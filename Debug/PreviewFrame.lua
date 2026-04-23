@@ -19,12 +19,12 @@ local function CreatePreviewFrame()
     frame:SetScript("OnDragStart", frame.StartMoving)
     frame:SetScript("OnDragStop", frame.StopMovingOrSizing)
 
-    local title = frame:CreateFontString(nil, "OVERLAY")
+    local title = frame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
     title:SetPoint("TOPLEFT", 16, -18)
     title:SetText("WeirdUI Theme Preview")
     frame.Title = title
 
-    local subtitle = frame:CreateFontString(nil, "OVERLAY")
+    local subtitle = frame:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     subtitle:SetPoint("TOPLEFT", title, "BOTTOMLEFT", 0, -8)
     subtitle:SetWidth(340)
     subtitle:SetJustifyH("LEFT")
@@ -55,12 +55,12 @@ local function CreatePreviewFrame()
     statusBar:SetMinMaxValues(0, 100)
     frame.StatusBar = statusBar
 
-    local statusLabel = frame:CreateFontString(nil, "OVERLAY")
+    local statusLabel = frame:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     statusLabel:SetPoint("BOTTOMLEFT", statusBar, "TOPLEFT", 0, 8)
     statusLabel:SetText("Accent Status Sample")
     frame.StatusLabel = statusLabel
 
-    local detail = frame:CreateFontString(nil, "OVERLAY")
+    local detail = frame:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     detail:SetPoint("TOPLEFT", subtitle, "BOTTOMLEFT", 0, -16)
     detail:SetWidth(340)
     detail:SetJustifyH("LEFT")

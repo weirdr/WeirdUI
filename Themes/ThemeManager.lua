@@ -32,6 +32,11 @@ function Theme:GetActiveThemeID()
     return theme and theme.id or Constants.DefaultThemeID
 end
 
+function Theme:GetActiveThemeLabel()
+    local theme = self:GetActiveThemeDefinition()
+    return theme and theme.label or Constants.DefaultThemeID
+end
+
 function Theme:GetToken(path)
     local profile = Addon:GetCurrentProfile()
     if profile and profile.theme and profile.theme.overrides then

@@ -12,6 +12,14 @@ This file is a durable research note for future sessions. It is intentionally op
 - Anywhere an author or display name is needed, use `Weirdman`.
 - Preserve this rule in all future edits, scaffolding, documentation, and commit-writing work.
 
+## UI Guardrails
+
+- Never use default Blizzard UI elements as the finished visual treatment in WeirdUI.
+- All UI elements should follow WeirdUI platform theme rules and style guidelines.
+- All buttons in WeirdUI should use WeirdUI's own themed and styled button treatment rather than default Blizzard button visuals.
+- If a Blizzard template must be used for behavior or compatibility, its default visual treatment should still be overridden so it matches WeirdUI's design system.
+- Default Blizzard UI art should be treated as a temporary implementation fallback only, not an acceptable finished state.
+
 ## Verified Target
 
 - `World of Warcraft: Midnight` released on 2026-03-02.
@@ -396,6 +404,22 @@ For code export from the client console at login or character select:
 - Expect party/raid/unit-frame work to require more source and runtime inspection than the generated docs alone provide.
 - Keep WeirdUI layout state explicit and separate, even if Blizzard Edit Mode interop is supported.
 - Assume load-on-demand Blizzard UI exists and build addon modules lazily.
+
+## Icon Font Notes
+
+- WoW icon-font glyphs must be provided as actual UTF-8 text, not pseudo-escape strings like `|uF012C`.
+- For bundled icon fonts using private-use codepoints, prefer explicit UTF-8 byte sequences in Lua string literals if runtime `utf8` support is uncertain.
+- A correct glyph value alone is not enough. Any `FontString` meant to render an icon must also have its font explicitly set to the bundled icon font file.
+- If an icon shows as square boxes, check both the glyph encoding and whether the active `FontString` font is still a default Blizzard font.
+- When wrapping text styling helpers, ensure icon-specific options like `fontFile` are forwarded all the way to the final `SetFont(...)` call.
+
+## Layout Notes
+
+- In WoW menu rows with right-aligned action buttons, do not rely on guessed text widths or a fixed reserved width for the button area.
+- `FontString` text can render wider than the nominal button width, so button label width must be measured from the rendered string and the control width must be updated from that value.
+- Descriptive text beside an action button should be constrained by anchors to the button edge, not only by a computed width. Anchoring the description `TOPRIGHT` to the button `TOPLEFT` prevents text from sliding underneath the control.
+- Row containers that participate in content-width relayout must update their own width, not only their child widths, or right-anchored controls can drift out of sync with the text layout.
+- Rows containing variable-length description text should not keep a hard-coded height. Recompute height from rendered text when layout changes so wrapped text and adjacent controls stay separated.
 
 ## Verified Research Sources
 

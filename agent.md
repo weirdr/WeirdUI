@@ -434,11 +434,46 @@ For code export from the client console at login or character select:
 - `Gethe/wow-ui-source/live/version.txt`
 - `Gethe/wow-ui-source/live/Interface/AddOns/Blizzard_APIDocumentationGenerated/*`
 
+## Current Implementation Snapshot
+
+- The workspace is no longer planning-only. A functional WeirdUI addon scaffold exists with core runtime, menu shell, layout manager, skin helpers, saved-variable defaults, and deploy tooling.
+- The active implementation focus is the custom Objective Tracker in `Modules/ObjectiveTracker.lua`.
+- The tracker is implemented as a WeirdUI-owned surface named `WeirdUIObjectiveTrackerFrame` rather than as a direct Blizzard tracker reskin.
+- The tracker currently suppresses Blizzard's `ObjectiveTrackerFrame` while the WeirdUI tracker is enabled and restores Blizzard behavior when the custom tracker is disabled.
+- The tracker is layout-managed, freely draggable, persists position, and intentionally does not close on `Escape`.
+- The old `All Objectives` root header and container have been removed. Section cards are now the primary tracker grouping surface.
+- Current tracker settings include `backgroundOpacity`, `scale`, `compactHeader`, `highlightCurrentZone`, `sectionCardColors`, `sectionCardOpacities`, and `sectionAccentColors`.
+- Section card rendering now uses a neutral base surface plus a separate tint layer so opacity sliders map cleanly to visible results.
+- Tracker background opacity is intended to behave as a true `0%` to `100%` range, including border and shadow fade behavior.
+- Per quest-type customization now exists for background tint color, background tint opacity, and accent color.
+- Supported tracker quest or content-type keys currently include `quests`, `world`, `delves`, `reputation`, `professions`, `pvp`, `events`, and `instances`.
+- Tracker settings UI has been reorganized into grouped sections including `Status & Actions`, `Layout & Scale`, `Appearance`, `Quest Type Cards`, and `Typography`.
+- The tracker currently includes preview weekly or content groups for UI review, including `Delves`, `Reputation`, `Professions`, `PvP`, `Events`, and `Dungeons & Raids`.
+
+## Color Picker Notes
+
+- WeirdUI color picking now uses Blizzard's retail `ColorPickerFrame` behavior instead of the earlier temporary custom RGB-only modal.
+- The current implementation uses `ColorPickerFrame` and prefers `ColorPickerFrame.Content.ColorPicker` when that control path exists in the retail client.
+- WeirdUI themes the shared Blizzard picker frame to match the addon visual language and adds a synced hex input field.
+- The hex field displays the active picker color and can push typed hex values back into the picker.
+- The earlier bug where live wheel updates only captured the red channel was fixed.
+- The temporary blue accent line issue came from applying panel accent treatment to the picker shell; current picker theming should keep accent styling disabled for that frame.
+- Because the implementation augments the shared Blizzard `ColorPickerFrame`, other addon flows that open the same frame may inherit WeirdUI styling and the hex field.
+
+## Immediate Validation Targets
+
+- Validate in-game that the themed Blizzard color wheel still behaves correctly for live updates and apply or cancel behavior.
+- Validate that no blue accent line appears on the picker title or frame.
+- Validate that picker hex input stays synchronized in both directions with the wheel.
+- Validate that per-type tracker accent colors reach borders, dividers, headers, counts, collapse toggles, and emphasized row accents.
+- Validate that tracker background opacity, section tint opacity, width fill, and content-driven heights still behave correctly in the live client.
+
 ## Current Bottom Line
 
-We now have a verified Midnight-retail addon research baseline.
+We now have both a verified Midnight-retail research baseline and a real in-progress addon implementation.
 
 - The correct API target is retail `12.x`, not an imagined separate doc set.
 - The most important engineering constraint is the protected / secret / taint / restriction model.
 - The most important new Midnight UI domain is housing.
-- The most important next step for any specific WeirdUI subsystem is to pair generated docs with live FrameXML source and runtime frame inspection.
+- The current implementation focus is a custom WeirdUI Objective Tracker with per-type card styling and a Blizzard-wheel-backed themed color picker.
+- The most important next step for any specific WeirdUI subsystem is still to pair generated docs with live FrameXML source and runtime frame inspection.

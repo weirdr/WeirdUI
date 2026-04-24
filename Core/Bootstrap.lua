@@ -41,6 +41,10 @@ function Addon:Initialize()
         self:InitializeMenu()
     end
 
+    if self.InitializeObjectiveTrackerModule then
+        self:InitializeObjectiveTrackerModule()
+    end
+
     if self.InitializeDebugTools then
         self:InitializeDebugTools()
     end

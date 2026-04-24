@@ -27,6 +27,7 @@ $itemsToCopy = @(
     'Core',
     'Themes',
     'Assets',
+    'Modules',
     'Menu',
     'Debug'
 )

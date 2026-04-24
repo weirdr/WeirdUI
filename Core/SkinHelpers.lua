@@ -335,6 +335,26 @@ function Helpers:ApplyStatusBar(statusBar)
     ApplyColor(statusBar.WeirdUIBorderRight, borderColor)
 end
 
+function Helpers:ApplyEditBox(editBox)
+    if not editBox then
+        return
+    end
+
+    self:ApplyPanel(editBox, {
+        accent = false,
+        shadow = false,
+        surfaceColorPath = "color.surface.inset",
+        borderColorPath = editBox:HasFocus() and "color.border.accent" or "color.border.subtle",
+    })
+
+    self:ApplyText(editBox, {
+        size = "sm",
+        colorPath = editBox:IsEnabled() and "color.text.primary" or "color.role.disabled.strong",
+    })
+
+    editBox:SetTextInsets(8, 8, 6, 6)
+end
+
 function Helpers:ApplyIcon(texture)
     local crop = Addon.Theme:GetToken("icon.crop.standard") or 0.07
     texture:SetTexCoord(crop, 1 - crop, crop, 1 - crop)
